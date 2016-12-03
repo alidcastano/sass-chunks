@@ -1,0 +1,64 @@
+@import "./config/media"
+@import "./utilities/str"
+@import "./utilities/list"
+
+// Breakpoints
+// sizes:   xs, sm, md, lg, xl
+// devices: phone, tablet, desktop
+$breakpoints: (xs: 0, sm: 544px, md: 768px, lg: 992px, xl: 1200px, phone: 544px, tablet: 768px, desktop: 992px) !default
+
+// Expressions
+//  handheld, landscape, portraint, retina 2x, retina 3x
+$media-expressions: (screen: 'screen', print: 'print', handheld: 'handheld', landscape: 'orientation: landscape', portrait: 'orientation: portrait', retina2x: 'min-resolution: 192dpi, min-resolution: 2dppx', retina3x: 'min-resolution: 350dpi, min-resolution: 3dppx') !default
+
+// Unit Intervals
+// amount to add or subtract when declaring breakpoints with exclusive intervals
+$unit-intervals: ('': 0, 'px': 1, 'em': 0.01, 'rem': 0.1) !default
+
+
+// -------------------
+//  Media
+// ------------------
+// TODO media-expressions[query]
+// media-expressions have no operator and we can just return value
+
+// TODO accept numbers not just values in map
+
+// TODO accept more than one logical operator
+// make args into $list
+// e.g. 'phone' 'desktop', 'or'
+@mixin media($conditions...)
+  $keyword: 'and'
+  $queries: list-separate(list-apply('to-query', $conditions), $keyword)
+  @media #{$queries}
+    @content
+
+
+@function to-query($condition, $args...)
+  $dimension: 'width'
+  $operatior: null
+
+  // operators must be ordered from longest to shorterst length
+  // because str-extract grabs the first substring it finds
+  $valid-operators: join(('>=', '≥', '>'), ('<=', '≤', '<'))
+
+  // get property prefix and suffix
+  // e.g. height>= -> min and width
+  $operator: str-extract($condition, $valid-operators)
+  $direction: if(index(('>=', '≥', '>'), $operator), 'min', 'max')
+  $dimension: if(str-index($condition, 'height'), 'height', 'width')
+
+  // get value
+  // e.g. phone -> 200px
+  $from-operator: substr-last-char($condition, $operator)
+  $bp-key: str-slice($condition, $from-operator + 1)
+  $bp-value: map-get($breakpoints, $bp-key)
+
+  // set rule
+  // e.g. >=phone -> (min-width: 200px)
+  @return '(#{$direction}-#{$dimension}: #{$bp-value})'
+
+@function get-keyword($word)
+  @if $word == 'or'
+    @return ','
+  @return $word

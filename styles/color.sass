@@ -1,0 +1,61 @@
+@import "./config/color"
+@import "./utilities/str"
+
+// ---------------------------
+// Color Setter
+// ---------------------------
+// TODO improve color contrast options
+// TODO improve outline options
+@mixin color($args...)
+  $color: 'primary'
+  $hue: $default-hue
+  $is-outlined: false
+  $is-inverted: false
+  $color-main: null
+  $color-contrast: null
+  // override passed params
+  @each $arg in $args
+    @if str-index($arg, 'outlined') != null
+      $is-outlined: true
+    @else if str-index($arg, 'inverted') != null
+      $is-inverted: true
+    @else
+      @if str-index($arg, ' ') != null
+        $list: str-split($arg, ' ')
+        $color: nth($list, 1)
+        $hue: nth($list, 2)
+      @else
+        $color: $arg
+
+  // fetch colors via color scheme map
+  // or directly from palettes
+  $nested-color: null
+  @if map-has-key($color-scheme, $color)
+    $nested-color: map-get($color-scheme, $color)
+    $color-main: get-color($nested-color, $hue)
+    $color-contrast: get-color($nested-color, 'contrast')
+  @else
+    $color-main: get-color($color, $hue)
+    $color-contrast: get-color($color, 'contrast')
+
+  @if $is-inverted
+    background-color: $color-contrast
+    color: $color-main
+    @if $is-outlined
+      border: 1px solid $color-main
+  @else
+    background-color: $color-main
+    color: $color-contrast
+    @if $is-outlined
+      border: 1px solid $color-contrast
+
+// Helper
+//
+@function get-color($color, $hue: $default-hue)
+  $curr_color: map-get($colors, $color)
+
+  // return either the nested hue or the current color
+  @if map-has-key($curr_color, $hue)
+    @return map-get($curr_color, $hue)
+  @else
+    @return map-get($color, $hue)

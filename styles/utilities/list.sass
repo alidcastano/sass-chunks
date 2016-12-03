@@ -1,0 +1,75 @@
+// List Functions
+//  1. List Apply
+//  2. List Fold
+//  3. List Filter
+
+// ---------------------------
+// List Apply
+// ---------------------------
+// apply function to every item in a list
+@function list-apply($fn, $list, $args...)
+  $new-list: ()
+  @each $value in $list
+    $new-list: append($new-list, call($fn, $value, $args))
+  @return $new-list
+
+// ---------------------------
+// List Fold
+// ---------------------------
+// Reduce a list to a single value.
+//
+// Sadly, you can't leave out the initial value
+// (can't have default arguments before rest
+// arguments), so if you don't want an initial value, set it to null.
+@function list-fold($fn, $list, $initial, $args...)
+  $start: 1
+  @if $initial == null
+      // If there's no initial value, use the first in the list.
+      $start: 2
+      $initial: nth($list, 1)
+  $prev: $initial
+  @for $i from $start through length($list)
+      $next: nth($list, $i)
+      $prev: call($fn, $prev, $next, $args...)
+  @return $prev
+
+// ----------------------------
+// List Filter
+// ---------------------------
+// filter items from a list
+// returns list of boolean items indicating whether item passed filter
+@function list-filter($fn, $list, $args...)
+  $new-list: ()
+  @each $item in $list
+      @if call($fn, $item, $args...)
+          $new-list: append($new-list, $item)
+  @return $new-list
+
+// ---------------------------
+// List Seperate
+// ---------------------------
+// seperates a items in list by any given value
+// NOT the same as list-seperator
+@function list-separate($list, $seperator)
+  $new-list: ()
+  $seperator: get-seperator($seperator)
+  @for $i from 1 through length($list)
+    $value: unquote(nth($list, $i))
+    @if $i == length($list)
+      // don't add seperator to list w/ single value or to the last value in list
+      $new-list: append($new-list, $value)
+    @else
+      $new-list: join($new-list, append($value, $seperator))
+  @return $new-list
+
+// Helper
+//
+// Converts seperator to appropriate value
+// [comma / space / or / and]
+@function get-seperator($seperator)
+  @if $seperator == 'space'
+    @return ' '
+  @else if $seperator == 'comma'
+    @return ','
+  @else
+    @return $seperator

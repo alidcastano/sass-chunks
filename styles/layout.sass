@@ -1,0 +1,186 @@
+@import "./config/layout"
+
+// Layout mixins
+//  1. Flex Contain
+//  2. Flex Span
+//  3. Place Children
+//  4. Place Self
+//  5. Place Content
+
+
+// -------------------------------
+// Flex Grid 'Contain' Children
+// -------------------------------
+// <direction> <wrap>
+// [column / row] [wrap / nowrap]
+//
+//
+// example:
+//  flex-contain(column, nowrap)
+//
+@mixin flex-contain($d: row, $w: wrap)
+  display: flex
+  flex-direction: $d
+  flex-wrap: $w
+
+  position: relative
+  // Prevent collapsing
+  min-height: 1px
+  // Prevent columns from becoming too narrow when at smaller grid tiers
+  width: 100%
+
+
+// -------------------------------
+// Flex Cell 'Span' Column or Row
+// --------------------------------
+// <span space> <flex factor>
+// [auto / x of total grid-space][shrink / grow / fluid / fixed]
+//
+// note:
+//  if parent container $direction is 'column' then space-space determines height
+//  if parent container $direction is 'row' then space-space determines width
+//
+// examples:
+//  flex-span(4, fluid)
+//  flex(4)
+//  flex(fluid)
+//
+@mixin flex-span($args...)
+  $span: auto !default
+  $flex: 'fixed' !default
+  // override passed params
+  @each $arg in $args
+    @if type_of($arg) == number
+      $span: $arg
+    @else if type_of($arg) == string and $arg != 'auto'
+      $flex: $arg
+
+  // if span is auto then the initial space is determined by weight or height
+  // else it is the percentage of $grid-space taken up, e.g., 4 / 12 -> 25%
+  @if $span != auto
+    $span: percentage($span / $grid-space)
+
+  @if $flex == 'fixed'
+    $flex: 0 0
+  // grow and shrink with remaning space
+  @else if $flex == 'fluid'
+    $flex: 1 1
+  // only enlarge to fill remaning space
+  @else if $flex == 'grow'
+    $flex: 0 1
+  // only prevent overflow
+  @else if $flex == 'shrink'
+    $flex: 1 0
+  @else
+    @error "'#{$flex}' is not a valid argument"
+
+  flex: $flex $span
+
+// -------------------------------
+// Positions Children
+// -------------------------------
+// parent gives children default position
+//
+// <x-position> <y-position>
+// [left / center / right] [top / middle / bottom]
+@mixin place-children($x-pos: null, $y-pos: null)
+  justify-content: get-flex-pos($x-pos)
+  align-items: get-flex-pos($y-pos)
+  // TODO add align content
+
+
+// -------------------------------
+// Position Self
+// -------------------------------
+// positions block or inline-block elements like containers
+//
+// <x-position> <y-position>
+// [left / center / right] [top / middle / bottom]
+@mixin place-self($x-pos: null, $y-pos: null)
+  +justify-self($x-pos)
+  +align-self($y-pos)
+
+// Positions Self Horizontally
+//
+// <x-position>
+// [left / center / right]
+@mixin justify-self($x-pos)
+  @if $x-pos == left
+    margin-right: auto
+  @else if $x-pos == center
+    margin-left: auto
+    margin-right: auto
+  @else if $x-pos == right
+    margin-left: auto
+
+// Positions Self Vertically
+// replicates justify-content property to position individual cell
+//
+// <y-position>
+// [top / middle / bottom]
+//   >> also accepts flexbox values: [start / center / end TODO baseline, strech]
+@mixin align-self($y-pos)
+  @if $y-pos == top
+    $y-pos: start
+  @else if $y-pos == middle or $y-pos == center
+    $y-pos: center
+  @else if $y-pos == bottom
+    $y-pos: end
+
+  align-self: get-flex-pos($y-pos)
+
+
+// -------------------------------
+// Position Content
+// -------------------------------
+// positions inline content like text
+//
+//
+// <x-position> <y-position> <line-type> <text-spacing>
+// [left / center / right] [top / middle / bottom] [single / multiple] [number]
+@mixin place-content($x-pos, $y-pos, $args...)
+  $type: 'single' !default
+  $height: auto !default
+  // override passed params
+  @each $arg in $args
+    @if type_of($arg) == string
+      $type: $arg
+    @else if type_of($arg) == number
+      $height: $arg
+
+  text-align: $x-pos
+  // we need to set line height to container height
+  // for vertical align to position element in terms of entire container
+  line-height: $height
+
+  @if $type == 'single'
+    vertical-align: $y-pos
+  // if content is multiple lines of text then it should be
+  // nested under a 'span' or 'p' tag for vertical align to work
+  @else if $type == 'multiple'
+    & > span,
+    & > p
+      display: inline-block
+      line-height: 20px
+      vertical-align: $y-pos
+
+
+
+//--------------------------
+//  Helpers
+//--------------------------
+
+// Get Flex Position
+// appends prefix to position value if it has one, e.g., flex-start
+//
+// <position>
+// [start, center, end TODO space-around, space-between]
+@function get-flex-pos($pos)
+  @if $pos == null
+    @return $pos
+
+  $prefix: flex-
+  @if $pos == center
+    $prefix: null
+
+  @return #{$prefix}#{$pos}

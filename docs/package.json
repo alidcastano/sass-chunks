@@ -1,0 +1,23 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "Nuxt.js project",
+  "author": "Alid Castano <alidcastano@gmail.com>",
+  "private": true,
+  "dependencies": {
+    "nuxt": "^0.7.8"
+  },
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "devDependencies": {
+    "node-sass": "^3.13.0",
+    "pug": "^2.0.0-beta6",
+    "sass-loader": "^4.0.2",
+    "markdown-it": "^8.2.1",
+    "vue-markdown-loader": "^0.6.1"
+  }
+}

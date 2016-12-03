@@ -1,0 +1,15 @@
+$size-scales: ('tiny': 1, 'small': 2, 'medium': 3,'large': 4, 'huge': 5,'ginormous': 6)
+
+// TODO
+// size content
+// size container
+
+// TODO: take argument or scale
+// TODO: take in arguments as string, same as a class: 'large with-borders'
+@mixin size($size, $is-rounded: true)
+  $scale: map-get($size-scales, $size)
+  font-size: .75rem * $scale
+  padding: (.20rem * $scale) (.5rem * $scale)
+
+  @if ($is-rounded)
+    border-radius: .25rem  * $scale / 1.5
