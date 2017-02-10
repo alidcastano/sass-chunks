@@ -1,0 +1,26 @@
+{
+  "name": "sass-chunks-documentation",
+  "version": "1.0.0",
+  "description": "sass chunks documentation",
+  "author": "Alid Castano <alidcastano@gmail.com>",
+  "private": true,
+  "dependencies": {
+    "highlight.js": "^9.9.0",
+    "marked": "^0.3.6",
+    "normalize.css": "^5.0.0",
+    "nuxt": "latest"
+  },
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "deploy": "push-dir --dir=dist --branch=gh-pages --cleanup"
+  },
+  "devDependencies": {
+    "node-sass": "^4.5.0",
+    "push-dir": "^0.4.1",
+    "sass-loader": "^4.1.1",
+    "vue-markdown-loader": "^0.6.1"
+  }
+}
