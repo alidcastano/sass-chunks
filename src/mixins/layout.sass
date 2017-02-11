@@ -1,23 +1,30 @@
-@import "../config/layout"
-
-// Layout mixins
-//  1. Flex Contain
-//  2. Flex Span
-//  3. Place Children
-//  4. Place Self
-//  5. Place Content
+// {Layout} is composed of five main parts:
+//  @mixin flex-contain
+//  @mixin flex-span
+//  @mixin place-children
+//  @mixin place-self
+//  @mixin place-content
 
 // -------------------------------
-// Flex Grid 'Contain' Children
+// Config Variables
 // -------------------------------
-// <direction> <wrap>
-// [column / row] [wrap / nowrap]
+
+$grid-space: 12 !default
+
+// -------------------------------
+// Layout Mixins
+// -------------------------------
+
+// Parent Contain
+// @summary specifies how container should contain its children
 //
+// @param {direction} [column, row]
+// @param {wrapping} [wrap, nowrap] 
 //
-// example:
+// @example
 //  flex-contain(column, nowrap)
 //
-@mixin flex-contain($d: row, $w: wrap)
+@mixin parent-contain($d: row, $w: wrap)
   display: flex
   flex-direction: $d
   flex-wrap: $w
@@ -29,114 +36,91 @@
   width: 100%
 
 
-// -------------------------------
-// Flex Cell 'Span' Column or Row
-// --------------------------------
-// <span space> <flex factor>
-// [auto / x of total grid-space][shrink / grow / fluid / fixed]
+// Child Span
+// @summary specieis how a cell should span its container
 //
-// note:
-//  if parent container $direction is 'column' then space-space determines height
-//  if parent container $direction is 'row' then space-space determines width
+// @param {cell-basis} [1-12, auto] initial grid space that cell should take up
+// @param {flex-factor} [fixed, fluid, grow, shrink] how to fill remaining space
 //
-// examples:
+// @examples
 //  flex-span(4, fluid)
 //  flex(4)
 //  flex(fluid)
 //
-@mixin flex-span($args...)
-  $span: auto !default
-  $flex: 'fixed' !default
-  // override passed params
+// @note:
+//  if flex container $direction is 'column' then cell space determines height
+//  if flex container $direction is 'row' then cell space determines width
+//
+@mixin child-span($args...)
+  $cell-basis: auto !default
+  $flex-factor: 'fixed' !default
+
+  // override value if param was passed
   @each $arg in $args
     @if type_of($arg) == number
-      $span: $arg
+      $cell-basis: $arg
     @else if type_of($arg) == string and $arg != 'auto'
-      $flex: $arg
+      $flex-factor: $arg
 
-  // if span is auto then the initial space is determined by weight or height
-  // else it is the percentage of $grid-space taken up, e.g., 4 / 12 -> 25%
-  @if $span != auto
-    $span: percentage($span / $grid-space)
+  // if space is auto then flex-box will determine the initial space based
+  // on the weight or height, otherwise it's the percentage of space taken up
+  @if $cell-basis != auto
+    $cell-basis: percentage($cell-basis / $grid-space)
 
-  @if $flex == 'fixed'
-    $flex: 0 0
+  // remains unchanged regardless of remaining space
+  @if $flex-factor == 'fixed'
+    $flex-factor: 0 0
   // grow and shrink with remaning space
-  @else if $flex == 'fluid'
-    $flex: 1 1
+  @else if $flex-factor == 'fluid'
+    $flex-factor: 1 1
   // only enlarge to fill remaning space
-  @else if $flex == 'grow'
-    $flex: 0 1
+  @else if $flex-factor == 'grow'
+    $flex-factor: 0 1
   // only prevent overflow
-  @else if $flex == 'shrink'
-    $flex: 1 0
+  @else if $flex-factor == 'shrink'
+    $flex-factor: 1 0
   @else
     @error "'#{$flex}' is not a valid argument"
 
-  flex: $flex $span
+  flex: $flex-factor $cell-basis
 
-// -------------------------------
-// Positions Children
-// -------------------------------
-// parent gives children default position
+
+// Position Children
+// @summary specifies how child elements should be positioned
 //
-// <x-position> <y-position>
-// [left / center / right] [top / middle / bottom]
-@mixin place-children($x-pos: null, $y-pos: null)
+// @param {x-position} [left, center, right]
+// @param {y-position} [top, middle, bottom]
+//
+// @example
+//   position-children(left, middle)
+//
+@mixin position-children($x-pos: null, $y-pos: null)
   justify-content: get-flex-pos($x-pos)
   align-items: get-flex-pos($y-pos)
   // TODO add align content
 
 
-// -------------------------------
 // Position Self
-// -------------------------------
-// positions block or inline-block elements like containers
+// @summary positions block or inline-block like elements like containers
 //
-// <x-position> <y-position>
-// [left / center / right] [top / middle / bottom]
-@mixin place-self($x-pos: null, $y-pos: null)
+// @param {x-position} [left, center, right]
+// @param {y-position} [top, middle, bottom]
+//
+// @example
+//   position-self(left, bottom)
+//
+@mixin position-self($x-pos: null, $y-pos: null)
   +justify-self($x-pos)
   +align-self($y-pos)
 
-// Positions Self Horizontally
-//
-// <x-position>
-// [left / center / right]
-@mixin justify-self($x-pos)
-  @if $x-pos == left
-    margin-right: auto
-  @else if $x-pos == center
-    margin-left: auto
-    margin-right: auto
-  @else if $x-pos == right
-    margin-left: auto
-
-// Positions Self Vertically
-// replicates justify-content property to position individual cell
-//
-// <y-position>
-// [top / middle / bottom]
-//   >> also accepts flexbox values: [start / center / end TODO baseline, strech]
-@mixin align-self($y-pos)
-  @if $y-pos == top
-    $y-pos: start
-  @else if $y-pos == middle or $y-pos == center
-    $y-pos: center
-  @else if $y-pos == bottom
-    $y-pos: end
-
-  align-self: get-flex-pos($y-pos)
-
-
-// -------------------------------
 // Position Content
-// -------------------------------
-// positions inline content like text
+// @summary positions inline content like text
 //
+// @param {x-position} [left, center, right]
+// @param {y-position} [top, middle, bottom]
+// @param {line-type} [single, multiple]
+// @param {text-spacing} [number]
 //
-// <x-position> <y-position> <line-type> <text-spacing>
-// [left / center / right] [top / middle / bottom] [single / multiple] [number]
 @mixin place-content($x-pos, $y-pos, $args...)
   $type: 'single' !default
   $height: auto !default
@@ -164,16 +148,50 @@
       vertical-align: $y-pos
 
 
+//--------------------------
+//  Helper Mixins
+//--------------------------
+
+// Justify Self
+// @summary positions element horizontally
+//
+// @param  {x-position} [left / center / right]
+//
+@mixin justify-self($x-pos)
+  @if $x-pos == left
+    margin-right: auto
+  @else if $x-pos == center
+    margin-left: auto
+    margin-right: auto
+  @else if $x-pos == right
+    margin-left: auto
+
+// Align Self
+// @summary positions element vertically
+//          replicates justify-content property but for individual cells
+//
+// @param {y-position} [top / middle / bottom]
+//   >> also accepts flexbox values: [start / center / end TODO baseline, strech]
+//
+@mixin align-self($y-pos)
+  @if $y-pos == top
+    $y-pos: start
+  @else if $y-pos == middle or $y-pos == center
+    $y-pos: center
+  @else if $y-pos == bottom
+    $y-pos: end
+
+  align-self: get-flex-pos($y-pos)
 
 //--------------------------
-//  Helpers
+//  Helper Functions
 //--------------------------
 
 // Get Flex Position
-// appends prefix to position value if it has one, e.g., flex-start
+// @summary appends flex prefix to position value
 //
-// <position>
-// [start, center, end TODO space-around, space-between]
+// @param {position} [start, center, end TODO space-around, space-between]
+//
 @function get-flex-pos($pos)
   @if $pos == null
     @return $pos

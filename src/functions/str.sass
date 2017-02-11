@@ -1,13 +1,20 @@
 // String Functions
-//  1. String Split
-//  2. String Extract
-//  3. Substring Last Character
+//  @function string-split
+//  @function string-extract
+//  @function substr-last-char
 
-// ---------------------------
+// -------------------------------
+//  String Functions
+// -------------------------------
+
 // String Split
-// ---------------------------
-// splits a string based on a delimiter and returns a list with seperated values
-// >> use nth($list, 1) and nth($list, 2) to grab the seperated values
+// @summary splits a string based on a delimiter and returns a list of seperated values
+//
+// @param {String} string to split
+// @param {delimiter} character that determines split
+//
+// @note use nth($list, 1) and nth($list, 2) to grab the seperated values
+//
 @function str-split($string, $delimiter)
   $at-delimiter: str-index($string, $delimiter)
   $first: str_slice($string, 1, $at-delimiter - 1)
@@ -16,25 +23,29 @@
   $list: append($first, $second)
   @return $list
 
-// ---------------------------
 // String Extract
-// ---------------------------
-// returns the first value found inside a string from a list (or substring)
+// @summary given a list of values, gets the value found inside a string
+//
+// @param {String} string to search
+// @param {List} list of string values to loop over
+//
 @function str-extract($str, $list)
   @each $value in $list
     @if str-index($str, $value)
       @return $value
   @error 'The string #{$str} did not contain any value #{$list}'
 
-// ---------------------------
-// Substring Last Character
-// ---------------------------
-// returns the last occurances of a character in a substring
-@function substr-last-char($str, $substr)
-  $start: str-index($str, $substr)
+// String last index
+// @summary gets last occurances of a character in a substring
+//
+// @param {String} string to search
+// @param {value} search value
+//
+@function str-last-index($str, $val)
+  $start: str-index($str, $val)
 
   // don't need to count start position if substring is in beginning
   @if $start == 1
     $start: 0
 
-  @return $start + str-length($substr)
+  @return $start + str-length($val)

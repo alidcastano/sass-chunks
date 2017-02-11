@@ -1,11 +1,26 @@
+// -------------------------------
+// Config Variables
+// -------------------------------
+
 $size-scales: ('tiny': 1, 'small': 2, 'medium': 3,'large': 4, 'huge': 5,'ginormous': 6)
 
-// TODO
-// size content
-// size container
+// -------------------------------
+//  Color Mixin
+// -------------------------------
 
-// TODO: take argument or scale
-// TODO: take in arguments as string, same as a class: 'large with-borders'
+// TODO
+// different sizing for containers versus content
+// take in numerical scale as well
+
+// Size
+// @summary sizes elements proportionally according to set scale
+//
+// @param {size} [tiny, small, medium, large, huge, ginormous]
+// @param {is-rounded}[true, false]
+//
+// @example
+//   size('tiny', false)
+//   TODO make it size('tiny', 'is-rounded')
 @mixin size($size, $is-rounded: true)
   $scale: map-get($size-scales, $size)
   font-size: .75rem * $scale

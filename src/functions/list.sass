@@ -1,26 +1,36 @@
 // List Functions
-//  1. List Apply
-//  2. List Fold
-//  3. List Filter
+//  @function list-apply
+//  @function list-fold
+//  @function list-filter
 
-// ---------------------------
+// -------------------------------
+//  List Functions
+// -------------------------------
+
 // List Apply
-// ---------------------------
-// apply function to every item in a list
+// @summary apply function to every item in a list
+//
+// @param {function} converstion function
+// @param {list} list to convert
+// @param {args} arguments for the passed function
+//
 @function list-apply($fn, $list, $args...)
   $new-list: ()
   @each $value in $list
     $new-list: append($new-list, call($fn, $value, $args))
   @return $new-list
 
-// ---------------------------
 // List Fold
-// ---------------------------
-// Reduce a list to a single value.
+// @summary reduce a list to a single value
 //
-// Sadly, you can't leave out the initial value
-// (can't have default arguments before rest
-// arguments), so if you don't want an initial value, set it to null.
+// @param {function} conversion function
+// @param {list} list to convert
+// @param {initial} initial value to fold over
+// @param {args} arguments for the passed function
+//
+// @note You can't leave out the initial value (can't have default arguments
+// before rest arguments), so if you don't want an initial value, set it to null.
+//
 @function list-fold($fn, $list, $initial, $args...)
   $start: 1
   @if $initial == null
@@ -33,11 +43,14 @@
       $prev: call($fn, $prev, $next, $args...)
   @return $prev
 
-// ----------------------------
+
 // List Filter
-// ---------------------------
-// filter items from a list
-// returns list of boolean items indicating whether item passed filter
+// @summary if item passes predicate add it to list
+//
+// @param {function} filter function
+// @param {list} list to filter
+// @param {args} arguments for the passed function
+//
 @function list-filter($fn, $list, $args...)
   $new-list: ()
   @each $item in $list
@@ -45,11 +58,15 @@
           $new-list: append($new-list, $item)
   @return $new-list
 
-// ---------------------------
+
 // List Seperate
-// ---------------------------
-// seperates a items in list by any given value
-// NOT the same as list-seperator
+// @summary seperates a items in list by any given value
+//
+// @param {list} list to seperate
+// @param {seperator} [comma, space, or, and, ' ', ',']
+//
+// @note this function is not the same as the sass list-seperator function
+//
 @function list-separate($list, $seperator)
   $new-list: ()
   $seperator: get-seperator($seperator)
@@ -62,10 +79,16 @@
       $new-list: join($new-list, append($value, $seperator))
   @return $new-list
 
-// Helper
+
+// -------------------------------
+//  Helpers
+// -------------------------------
+
+// Get Seperator
+// @summary converts semantic version of seperator to appropriate value
 //
-// Converts seperator to appropriate value
-// [comma / space / or / and]
+// @param {seperator}[comma / space / or / and, ' ', ',']
+//
 @function get-seperator($seperator)
   @if $seperator == 'space'
     @return ' '
