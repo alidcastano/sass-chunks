@@ -19,12 +19,12 @@ $grid-space: 12 !default
 // @summary specifies how container should contain its children
 //
 // @param {direction} [column, row]
-// @param {wrapping} [wrap, nowrap] 
+// @param {wrapping} [wrap, nowrap]
 //
 // @example
 //  flex-contain(column, nowrap)
 //
-@mixin parent-contain($d: row, $w: wrap)
+@mixin grid-contain($d: row, $w: wrap)
   display: flex
   flex-direction: $d
   flex-wrap: $w
@@ -51,7 +51,7 @@ $grid-space: 12 !default
 //  if flex container $direction is 'column' then cell space determines height
 //  if flex container $direction is 'row' then cell space determines width
 //
-@mixin child-span($args...)
+@mixin cell-span($args...)
   $cell-basis: auto !default
   $flex-factor: 'fixed' !default
 
@@ -121,7 +121,7 @@ $grid-space: 12 !default
 // @param {line-type} [single, multiple]
 // @param {text-spacing} [number]
 //
-@mixin place-content($x-pos, $y-pos, $args...)
+@mixin position-content($x-pos, $y-pos, $args...)
   $type: 'single' !default
   $height: auto !default
   // override passed params
