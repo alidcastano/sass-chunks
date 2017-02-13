@@ -2,11 +2,12 @@
   "name": "sass-chunks",
   "version": "0.0.1",
   "description": "A declarative Sass library for delivering semantic, concise, and maintainable stylesheets",
-  "main": "index.js",
+  "main": "main.sass",
   "scripts": {
-    "build": "rm -rf dist && npm run build:sass && npm run build:autoprefix",
-    "build:sass": "node-sass --output-style expanded --source-map true src/main.sass dist/main.css",
-    "build:autoprefix": "postcss --use autoprefixer --output dist/main.css dist/main.css"
+    "build": "rm -rf dist && npm run build-css && npm run build-autoprefix && npm run build-src",
+    "build-src": "cp -r src/* dist",
+    "build-css": "node-sass --output-style expanded --source-map true src/main.sass dist/main.css",
+    "build-autoprefix": "postcss --use autoprefixer --output dist/main.css dist/main.css"
   },
   "devDependencies": {
     "autoprefixer": "^6.3.3",
